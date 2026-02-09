@@ -77,16 +77,16 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Fixed Navbar */}
-      <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 border-b border-indigo-500/20">
+      <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 border-b border-amber-800/20">
         <div className="container mx-auto px-4">
           <div className="flex h-14 items-center justify-between">
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">AI CryptoMentor</h1>
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">AI CryptoMentor</h1>
             <div className="flex space-x-1 sm:space-x-4">
               <Button 
                 variant={activeSection === 'home' ? "default" : "ghost"} 
                 size="sm" 
                 onClick={() => scrollToSection('home')}
-                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'home' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md shadow-indigo-500/30' : ''}`}
+                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'home' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-md shadow-amber-600/30' : ''}`}
               >
                 <HomeIcon className="h-4 w-4" />
                 <span className="text-xs sm:text-sm">Home</span>
@@ -95,7 +95,7 @@ export default function Dashboard() {
                 variant={activeSection === 'market' ? "default" : "ghost"} 
                 size="sm" 
                 onClick={() => scrollToSection('market')}
-                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'market' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md shadow-indigo-500/30' : ''}`}
+                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'market' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-md shadow-amber-600/30' : ''}`}
               >
                 <TrendingUpIcon className="h-4 w-4" />
                 <span className="text-xs sm:text-sm">Market</span>
@@ -104,7 +104,7 @@ export default function Dashboard() {
                 variant={activeSection === 'news' ? "default" : "ghost"} 
                 size="sm" 
                 onClick={() => scrollToSection('news')}
-                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'news' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md shadow-indigo-500/30' : ''}`}
+                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'news' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-md shadow-amber-600/30' : ''}`}
               >
                 <NewspaperIcon className="h-4 w-4" />
                 <span className="text-xs sm:text-sm">News</span>
@@ -113,7 +113,7 @@ export default function Dashboard() {
                 variant={activeSection === 'chat' ? "default" : "ghost"} 
                 size="sm" 
                 onClick={() => scrollToSection('chat')}
-                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'chat' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md shadow-indigo-500/30' : ''}`}
+                className={`flex flex-col sm:flex-row items-center gap-1 h-10 ${activeSection === 'chat' ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-md shadow-amber-600/30' : ''}`}
               >
                 <MessagesSquareIcon className="h-4 w-4" />
                 <span className="text-xs sm:text-sm">Chat</span>
@@ -128,7 +128,7 @@ export default function Dashboard() {
         <section ref={homeRef} className="py-8">
           <div className="container mx-auto px-4">
             <header className="mb-6 text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">AI CryptoMentor</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">AI CryptoMentor</h1>
               <p className="text-muted-foreground mt-1">AI-powered insights and analysis</p>
             </header>
           </div>
@@ -155,7 +155,7 @@ export default function Dashboard() {
                       >
                         <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
                           <div className="flex items-center gap-2 font-medium">
-                            <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                            <BarChart3Icon className="h-5 w-5 text-amber-400" />
                             Trading Signals & Analysis for {selectedAsset.name}
                           </div>
                           {isSignalsOpen ? (
@@ -178,7 +178,7 @@ export default function Dashboard() {
                                 <Card className="glassmorphic mt-6 h-full">
                                   <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                      <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                                      <BarChart3Icon className="h-5 w-5 text-amber-400" />
                                       Technical Analysis
                                     </CardTitle>
                                   </CardHeader>
@@ -191,7 +191,7 @@ export default function Dashboard() {
                                 <Card className="glassmorphic mt-6 h-full">
                                   <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                      <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                                      <BarChart3Icon className="h-5 w-5 text-amber-400" />
                                       Price Prediction
                                     </CardTitle>
                                   </CardHeader>
@@ -204,7 +204,7 @@ export default function Dashboard() {
                                 <Card className="glassmorphic mt-6 h-full">
                                   <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                      <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                                      <BarChart3Icon className="h-5 w-5 text-amber-400" />
                                       Risk Analysis
                                     </CardTitle>
                                   </CardHeader>
@@ -217,7 +217,7 @@ export default function Dashboard() {
                                 <Card className="glassmorphic mt-6 h-full">
                                   <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                      <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                                      <BarChart3Icon className="h-5 w-5 text-amber-400" />
                                       AI Trading Assistant
                                     </CardTitle>
                                   </CardHeader>
@@ -230,7 +230,7 @@ export default function Dashboard() {
                                 <Card className="glassmorphic mt-6 h-full">
                                   <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                      <BarChart3Icon className="h-5 w-5 text-indigo-400" />
+                                      <BarChart3Icon className="h-5 w-5 text-amber-400" />
                                       Trading Simulator
                                     </CardTitle>
                                   </CardHeader>
@@ -259,9 +259,9 @@ export default function Dashboard() {
         </section>
 
         {/* News Section */}
-        <section ref={newsRef} className="py-6 bg-indigo-900/10 backdrop-blur-md">
+        <section ref={newsRef} className="py-6 bg-amber-950/10 backdrop-blur-md">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Market News & Sentiment</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">Market News & Sentiment</h2>
             <NewsAnalysis asset={selectedAsset} />
           </div>
         </section>
@@ -269,7 +269,7 @@ export default function Dashboard() {
         {/* Chat Assistant Section */}
         <section ref={chatRef} className="py-6">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">AI Trading Assistant</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">AI Trading Assistant</h2>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-8">
                 <Card className="glassmorphic h-full">
@@ -296,12 +296,12 @@ export default function Dashboard() {
         </section>
       </main>
 
-      <footer className="mt-auto py-6 border-t border-indigo-500/20">
+      <footer className="mt-auto py-6 border-t border-amber-800/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground"> 2025 AI CryptoMentor. All rights reserved.</p>
             <div className="flex items-center gap-2 mt-2 sm:mt-0">
-              <span className="text-xs px-2 py-1 rounded-full bg-indigo-500/20 text-indigo-300">AI Powered</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-amber-600/20 text-amber-300">AI Powered</span>
             </div>
           </div>
         </div>
