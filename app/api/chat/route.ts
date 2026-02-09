@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateGeminiResponse } from '@/lib/gemini';
+import { generateGroqResponse } from '@/lib/groq';
 
 export async function POST(req: Request) {
   try {
@@ -12,10 +12,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Add crypto trading context to the prompt
-    const prompt = `You are a cryptocurrency trading assistant. Help the user with their query about crypto trading, market analysis, and investment strategies. Provide clear, concise responses without using asterisks (*). Format lists with bullet points (•) instead. Here's the user's message: ${message}`;
-
-    const response = await generateGeminiResponse(prompt);
+    const response = await generateGroqResponse(message);
 
     // Clean up the response by replacing asterisks with bullet points
     const cleanedResponse = response

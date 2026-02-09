@@ -50,49 +50,49 @@
   }
  
   .dark {
-    /* Keep original dark background */
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
- 
-    /* Semi-transparent dark slate card background */
-    --card: 217 30% 17% / 0.7;
-    --card-foreground: 210 40% 96.1%;
- 
+    /* Deep charcoal background */
+    --background: 220 15% 5%;
+    --foreground: 30 20% 95%;
+
+    /* Semi-transparent dark card with warm undertone */
+    --card: 220 15% 10%;
+    --card-foreground: 30 20% 92%;
+
     /* Popover styling */
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 210 40% 96.1%;
- 
-    /* Indigo to purple gradient for primary */
-    --primary: 244 75% 67%;
-    --primary-foreground: 210 40% 98%;
- 
-    /* Blue to teal gradient for secondary */
-    --secondary: 199 89% 48%;
-    --secondary-foreground: 210 40% 98%;
- 
+    --popover: 220 15% 8%;
+    --popover-foreground: 30 20% 92%;
+
+    /* Rose gold primary */
+    --primary: 15 60% 60%;
+    --primary-foreground: 30 20% 98%;
+
+    /* Deep gold secondary */
+    --secondary: 38 70% 45%;
+    --secondary-foreground: 30 20% 98%;
+
     /* Muted elements */
-    --muted: 217 30% 17%;
-    --muted-foreground: 215 20% 80%;
- 
-    /* Pink accent */
-    --accent: 336 100% 70%;
-    --accent-foreground: 210 40% 98%;
- 
+    --muted: 220 12% 14%;
+    --muted-foreground: 30 10% 65%;
+
+    /* Warm orange accent */
+    --accent: 25 85% 55%;
+    --accent-foreground: 30 20% 98%;
+
     /* Destructive elements */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
- 
-    /* Border and input styling */
-    --border: 217 30% 25%;
-    --input: 217 30% 25%;
-    --ring: 244 75% 67%;
 
-    /* Chart colors */
-    --chart-1: 244 75% 67%;
-    --chart-2: 199 89% 48%;
-    --chart-3: 336 100% 70%;
-    --chart-4: 262 83% 66%;
-    --chart-5: 172 70% 50%;
+    /* Border and input styling with warm tint */
+    --border: 220 10% 18%;
+    --input: 220 10% 18%;
+    --ring: 15 60% 60%;
+
+    /* Chart colors - warm palette */
+    --chart-1: 15 60% 60%;
+    --chart-2: 38 70% 50%;
+    --chart-3: 25 85% 55%;
+    --chart-4: 350 50% 55%;
+    --chart-5: 45 80% 55%;
   }
 }
 
@@ -103,49 +103,49 @@
   body {
     @apply bg-background text-foreground;
     background-image: 
-      radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 20%),
-      radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 20%),
-      radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 10% 20%, rgba(200, 140, 100, 0.06) 0%, transparent 25%),
+      radial-gradient(circle at 90% 80%, rgba(180, 120, 80, 0.06) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(210, 160, 60, 0.03) 0%, transparent 50%);
   }
 }
 
 /* Glassmorphic elements */
 .glassmorphic {
-  background-color: rgba(15, 23, 42, 0.7);
+  background-color: rgba(18, 20, 24, 0.75);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(200, 150, 100, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
   border-radius: 16px;
 }
 
 .glassmorphic-light {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(200, 150, 100, 0.06);
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* Button styling */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #c47a5a, #d4956b);
+  box-shadow: 0 4px 12px rgba(196, 122, 90, 0.3);
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 24px rgba(196, 122, 90, 0.5);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #3b82f6, #2dd4bf);
-  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.2);
+  background: linear-gradient(135deg, #b8860b, #d4a040);
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
   transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(45, 212, 191, 0.4);
+  box-shadow: 0 8px 24px rgba(184, 134, 11, 0.4);
 }
 
 /* Tab styling */
@@ -172,6 +172,6 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #c47a5a, #d4a040);
   border-radius: 2px;
 }
