@@ -88,14 +88,14 @@ export async function GET(
       indicators: {
         rsi: rsi?.[rsi?.length - 1] ?? null,
         macd: {
-          macdLine: macd?.MACD?.[macd.MACD?.length - 1] ?? null,
-          signalLine: macd?.signal?.[macd.signal?.length - 1] ?? null,
-          histogram: macd?.histogram?.[macd.histogram?.length - 1] ?? null
+          macdLine: macd?.MACD?.[macd?.MACD?.length - 1] ?? null,
+          signalLine: macd?.signal?.[macd?.signal?.length - 1] ?? null,
+          histogram: macd?.histogram?.[macd?.histogram?.length - 1] ?? null
         },
         bollingerBands: {
-          upper: bb?.upper?.[bb.upper?.length - 1] ?? null,
-          middle: bb?.middle?.[bb.middle?.length - 1] ?? null,
-          lower: bb?.lower?.[bb.lower?.length - 1] ?? null
+          upper: bb?.upper?.[bb?.upper?.length - 1] ?? null,
+          middle: bb?.middle?.[bb?.middle?.length - 1] ?? null,
+          lower: bb?.lower?.[bb?.lower?.length - 1] ?? null
         },
         movingAverages: ma
       }
@@ -107,14 +107,14 @@ export async function GET(
       indicators: {
         rsi: safeFmt(rsi?.[rsi?.length - 1]),
         macd: {
-          macdLine: safeFmt(macd?.MACD?.[macd.MACD?.length - 1]),
-          signalLine: safeFmt(macd?.signal?.[macd.signal?.length - 1]),
-          histogram: safeFmt(macd?.histogram?.[macd.histogram?.length - 1])
+          macdLine: safeFmt(macd?.MACD?.[macd?.MACD?.length - 1]),
+          signalLine: safeFmt(macd?.signal?.[macd?.signal?.length - 1]),
+          histogram: safeFmt(macd?.histogram?.[macd?.histogram?.length - 1])
         },
         bollingerBands: {
-          upper: safeFmt(bb?.upper?.[bb.upper?.length - 1]),
-          middle: safeFmt(bb?.middle?.[bb.middle?.length - 1]),
-          lower: safeFmt(bb?.lower?.[bb.lower?.length - 1])
+          upper: safeFmt(bb?.upper?.[bb?.upper?.length - 1]),
+          middle: safeFmt(bb?.middle?.[bb?.middle?.length - 1]),
+          lower: safeFmt(bb?.lower?.[bb?.lower?.length - 1])
         },
         movingAverages: {
           ma20: safeFmt(ma?.ma20),
