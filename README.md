@@ -85,6 +85,19 @@ A comprehensive, AI-powered dashboard for cryptocurrency trading analysis, marke
    NEXT_PUBLIC_COINGECKO_API_KEY=your_coingecko_api_key
    NEXT_PUBLIC_NEWSDATA_API_KEY=your_newsdata_api_key
    ```
+   
+   For Firebase integration (optional):
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+   ```
+   
+   See `.env.example` for a template.
 
 4. **Start the development server**
    ```bash
@@ -142,8 +155,25 @@ The application is divided into several key sections:
 The dashboard integrates with several external APIs:
 
 - **CoinGecko API**: For cryptocurrency market data, prices, and historical charts
-- **News APIs**: For aggregating relevant cryptocurrency news
+- **NewsData API**: For aggregating relevant cryptocurrency news and sentiment analysis
 - **Groq API**: For AI-powered trading assistance and natural language processing
+- **Firebase** (Optional): For authentication, analytics, and cloud storage
+
+### Testing API Integrations
+
+To test all API integrations:
+
+```bash
+# Ensure dev server is running
+npm run dev
+
+# In a new terminal, run the test script
+node test-api-integrations.js
+```
+
+For detailed testing instructions, see [TESTING_GUIDE.md](./TESTING_GUIDE.md) and [RUN_TESTS.md](./RUN_TESTS.md).
+
+For a comprehensive API integration report, see [API_INTEGRATION_REPORT.md](./API_INTEGRATION_REPORT.md).
 
 ## 🧪 Testing
 
