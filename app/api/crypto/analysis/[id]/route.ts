@@ -74,8 +74,16 @@ export async function GET(
       }
     } catch (error) {
       console.error('Error calculating indicators for:', id, error);
+      // Provide additional error detail in responses temporarily to aid debugging
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error && error.stack ? error.stack : undefined;
+      if (process.env.NODE_ENV === 'production') {
+        // still log stack in production, but avoid leaking sensitive details to clients
+        console.error(stack);
+        return NextResponse.json({ error: 'Failed to calculate indicators', details: message }, { status: 500 });
+      }
       return NextResponse.json(
-        { error: 'Failed to calculate indicators' },
+        { error: 'Failed to calculate indicators', details: message, stack },
         { status: 500 }
       );
     }
@@ -122,10 +130,13 @@ export async function GET(
     });
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error in analysis endpoint:', error);
-    return NextResponse.json(
-      { error: 'Failed to analyze crypto data' },
-      { status: 500 }
-    );
+      console.error('Error in analysis endpoint:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error && error.stack ? error.stack : undefined;
+      // Temporarily include details to assist debugging; remove or sanitize later.
+      return NextResponse.json(
+        { error: 'Failed to analyze crypto data', details: message, stack: process.env.NODE_ENV === 'development' ? stack : undefined },
+        { status: 500 }
+      );
   }
 }
