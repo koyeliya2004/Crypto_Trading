@@ -27,6 +27,9 @@ export async function GET(
     const id = params.id.toLowerCase(); // CoinGecko requires lowercase IDs
     console.log('Fetching data for:', id);
 
+    // Helper to safely format numeric values for logging
+    const safeFmt = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v.toFixed(2) : 'N/A');
+
     // Use daily data for the last 90 days instead of hourly
     const history = await getCryptoHistory(id, 90, 'daily');
     console.log('History response:', history);
@@ -83,48 +86,48 @@ export async function GET(
     const response = {
       prices,
       indicators: {
-        rsi: rsi[rsi.length - 1],
+        rsi: rsi?.[rsi.length - 1] ?? null,
         macd: {
-          macdLine: macd.MACD[macd.MACD.length - 1],
-          signalLine: macd.signal[macd.signal.length - 1],
-          histogram: macd.histogram[macd.histogram.length - 1]
+          macdLine: macd?.MACD?.[macd.MACD.length - 1] ?? null,
+          signalLine: macd?.signal?.[macd.signal.length - 1] ?? null,
+          histogram: macd?.histogram?.[macd.histogram.length - 1] ?? null
         },
         bollingerBands: {
-          upper: bb.upper[bb.upper.length - 1],
-          middle: bb.middle[bb.middle.length - 1],
-          lower: bb.lower[bb.lower.length - 1]
+          upper: bb?.upper?.[bb.upper.length - 1] ?? null,
+          middle: bb?.middle?.[bb.middle.length - 1] ?? null,
+          lower: bb?.lower?.[bb.lower.length - 1] ?? null
         },
         movingAverages: ma
       }
     };
 
     // Log a summary of the response instead of the full object to avoid console truncation
-    console.log('Sending response with:', {
+    console.log('Sending response summary for', id, {
       pricePoints: prices.length,
       indicators: {
-        rsi: rsi[rsi.length - 1].toFixed(2),
+        rsi: safeFmt(rsi?.[rsi.length - 1]),
         macd: {
-          macdLine: macd.MACD[macd.MACD.length - 1].toFixed(2),
-          signalLine: macd.signal[macd.signal.length - 1].toFixed(2),
-          histogram: macd.histogram[macd.histogram.length - 1].toFixed(2)
+          macdLine: safeFmt(macd?.MACD?.[macd.MACD.length - 1]),
+          signalLine: safeFmt(macd?.signal?.[macd.signal.length - 1]),
+          histogram: safeFmt(macd?.histogram?.[macd.histogram.length - 1])
         },
         bollingerBands: {
-          upper: bb.upper[bb.upper.length - 1].toFixed(2),
-          middle: bb.middle[bb.middle.length - 1].toFixed(2),
-          lower: bb.lower[bb.lower.length - 1].toFixed(2)
+          upper: safeFmt(bb?.upper?.[bb.upper.length - 1]),
+          middle: safeFmt(bb?.middle?.[bb.middle.length - 1]),
+          lower: safeFmt(bb?.lower?.[bb.lower.length - 1])
         },
         movingAverages: {
-          ma20: ma.ma20.toFixed(2),
-          ma50: ma.ma50.toFixed(2),
-          ma200: ma.ma200.toFixed(2)
+          ma20: safeFmt(ma?.ma20),
+          ma50: safeFmt(ma?.ma50),
+          ma200: safeFmt(ma?.ma200)
         }
       }
     });
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error in analysis endpoint:', error);
+    console.error(`Error in analysis endpoint for ${params.id}:`, (error as Error)?.stack ?? error);
     return NextResponse.json(
-      { error: 'Failed to analyze crypto data' },
+      { error: 'Failed to analyze crypto data', details: 'server error' },
       { status: 500 }
     );
   }
