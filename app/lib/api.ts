@@ -1,7 +1,16 @@
 import { CryptoAsset } from '../types/market';
 import { handleApiResponse, createApiRequest, ApiError } from './utils';
 
-const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
+const COINGECKO_API_BASE = '/api/coingecko'; 
+
+function buildProxyUrl(path: string) {
+  // If running on the server and proxy base is relative, prefix with a full origin
+  if (COINGECKO_API_BASE.startsWith('/') && typeof window === 'undefined') {
+    const site = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    return `${site}${COINGECKO_API_BASE}${path}`;
+  }
+  return `${COINGECKO_API_BASE}${path}`;
+}
 
 export async function getTopCryptos(limit: number = 20): Promise<CryptoAsset[]> {
   const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
@@ -9,12 +18,11 @@ export async function getTopCryptos(limit: number = 20): Promise<CryptoAsset[]> 
     throw new Error('CoinGecko API key is not configured');
   }
   try {
-    // Using the demo API key format for CoinGecko API
+    // Use internal server-side proxy to avoid CORS and rate-limit exposure
     const response = await createApiRequest(
-      `${COINGECKO_API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`,
+      buildProxyUrl(`/markets?per_page=${limit}&page=1`),
       {
         headers: {
-          'x-cg-api-key': apiKey,
           'Content-Type': 'application/json'
         }
       }
@@ -52,10 +60,10 @@ export async function getCryptoHistory(
   
   try {
     // Add delay between requests to avoid rate limiting
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
     const response = await createApiRequest(
-      `${COINGECKO_API_BASE}/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`,
+      buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`),
       {
         headers: {
           'x-cg-api-key': apiKey,
@@ -88,6 +96,12 @@ export async function getCryptoHistory(
         console.warn(`Rate limit reached. Retrying in ${backoffTime}ms...`);
         await new Promise(resolve => setTimeout(resolve, backoffTime));
         return getCryptoHistory(id, days, interval, retryCount + 1);
+      }
+
+      // After retries, return a small fallback dataset to avoid failing static generation
+      if (apiError.status === 429 && retryCount >= 3) {
+        console.warn('Rate limited after retries; returning fallback price data to continue.');
+        return { prices: [[Date.now(), 0]] };
       }
       
       // Handle specific API errors

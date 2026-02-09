@@ -102,11 +102,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: 
-      radial-gradient(circle at 10% 20%, rgba(232, 170, 88, 0.12) 0%, transparent 32%),
-      radial-gradient(circle at 90% 10%, rgba(255, 140, 60, 0.08) 0%, transparent 28%),
-      radial-gradient(circle at 50% 80%, rgba(196, 140, 40, 0.08) 0%, transparent 40%),
-      linear-gradient(135deg, rgba(17, 12, 6, 0.9) 0%, rgba(8, 6, 3, 0.95) 55%, rgba(12, 8, 4, 0.98) 100%);
+    background: transparent;
     position: relative;
   }
 }

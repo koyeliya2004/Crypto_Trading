@@ -125,16 +125,22 @@ export default function MarketOverview({ onAssetSelect }: MarketOverviewProps) {
                         </p>
                       </div>
                     </div>
-                    <div
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        asset.price_change_percentage_24h >= 0
+                    {(() => {
+                      const change = asset.price_change_percentage_24h;
+                      const hasChange = typeof change === 'number';
+                      const positive = hasChange && change >= 0;
+                      const badgeClass = hasChange
+                        ? positive
                           ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                           : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
-                    >
-                      {asset.price_change_percentage_24h >= 0 ? '+' : ''}
-                      {asset.price_change_percentage_24h.toFixed(2)}%
-                    </div>
+                        : 'bg-muted text-muted-foreground';
+
+                      return (
+                        <div className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeClass}`}>
+                          {hasChange ? (positive ? '+' : '') + change.toFixed(2) + '%' : '—'}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div className="mt-3">
                     <p className="font-semibold text-lg">${asset.current_price.toLocaleString()}</p>
@@ -185,12 +191,21 @@ export default function MarketOverview({ onAssetSelect }: MarketOverviewProps) {
                             : 'text-red-500'
                         }`}
                       >
-                        {asset.price_change_percentage_24h >= 0 ? (
-                          <ArrowUpIcon className="h-3 w-3 mr-0.5" />
-                        ) : (
-                          <ArrowDownIcon className="h-3 w-3 mr-0.5" />
-                        )}
-                        {Math.abs(asset.price_change_percentage_24h).toFixed(2)}%
+                          {(() => {
+                            const change = asset.price_change_percentage_24h;
+                            const hasChange = typeof change === 'number';
+                            if (!hasChange) return '—';
+                            return (
+                              <>
+                                {change >= 0 ? (
+                                  <ArrowUpIcon className="h-3 w-3 mr-0.5" />
+                                ) : (
+                                  <ArrowDownIcon className="h-3 w-3 mr-0.5" />
+                                )}
+                                {Math.abs(change).toFixed(2)}%
+                              </>
+                            );
+                          })()}
                       </p>
                     </div>
                   </div>

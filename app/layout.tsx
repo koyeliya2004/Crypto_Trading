@@ -1,10 +1,12 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from "@/components/theme-provider";
+import PremiumBackground from "./components/PremiumBackground";
 
 export const metadata: Metadata = {
   title: 'Crypto Trading Assistant',
   description: 'AI-powered cryptocurrency trading assistant with real-time insights',
+  viewport: 'width=device-width, initial-scale=1',
 };
 
 export default function RootLayout({
@@ -21,6 +23,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PremiumBackground />
           {children}
         </ThemeProvider>
       </body>

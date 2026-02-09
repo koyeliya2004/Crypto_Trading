@@ -28,11 +28,14 @@ for (const [key, value] of Object.entries(envVars)) {
 }
 console.log(allEnvVarsPresent ? '   ✅ All environment variables are set!\n' : '   ⚠️  Some environment variables are missing\n');
 
+// Allow overriding the local dev server port when Next.js runs on a non-default port
+const DEV_PORT = process.env.DEV_PORT || 3000;
+
 // Test 2: Test Groq API (Chat)
 console.log('2️⃣ Testing Groq API (Chat Feature):');
 async function testGroqAPI() {
   try {
-    const response = await fetch('http://localhost:3000/api/chat', {
+    const response = await fetch(`http://localhost:${DEV_PORT}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: 'Hello, what is Bitcoin?' })
