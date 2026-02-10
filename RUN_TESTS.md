@@ -41,7 +41,7 @@ The automated test script verifies:
 
 1️⃣ Checking Environment Variables:
    ✅ GROQ_API_KEY: ***XXXX
-   ✅ NEXT_PUBLIC_COINGECKO_API_KEY: ***XXXX
+   ✅ COINGECKO_API_KEY: ***XXXX
    ✅ NEXT_PUBLIC_NEWSDATA_API_KEY: ***XXXX
    ✅ VERCEL_TOKEN: ***XXXX
    ✅ RENDER_TOKEN: ***XXXX
