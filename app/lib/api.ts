@@ -13,11 +13,6 @@ function buildProxyUrl(path: string) {
 }
 
 export async function getTopCryptos(limit: number = 20): Promise<CryptoAsset[]> {
-  // Prefer server-side key, fall back to public key if available
-  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
-  if (!apiKey) {
-    throw new Error('CoinGecko API key is not configured. Set COINGECKO_API_KEY or NEXT_PUBLIC_COINGECKO_API_KEY');
-  }
   try {
     // Use internal server-side proxy to avoid CORS and rate-limit exposure
     const response = await createApiRequest(
@@ -54,23 +49,12 @@ export async function getCryptoHistory(
   interval: string = 'daily',
   retryCount: number = 0
 ): Promise<{ prices: [number, number][] }> {
-  const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
-  if (!apiKey) {
-    throw new Error('CoinGecko API key is not configured');
-  }
-  
   try {
     // Add delay between requests to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const response = await createApiRequest(
-      buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`),
-      {
-        headers: {
-          'x-cg-api-key': apiKey,
-          'Content-Type': 'application/json'
-        }
-      }
+      buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`)
     );
     const data = await handleApiResponse<{ prices: [number, number][] }>(response);
     

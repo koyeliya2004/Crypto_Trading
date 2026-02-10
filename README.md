@@ -82,6 +82,7 @@ A comprehensive, AI-powered dashboard for cryptocurrency trading analysis, marke
    Create a `.env.local` file in the root directory with the following variables:
    ```
    GROQ_API_KEY=your_groq_api_key
+   COINGECKO_API_KEY=your_coingecko_api_key
    NEXT_PUBLIC_COINGECKO_API_KEY=your_coingecko_api_key
    NEXT_PUBLIC_NEWSDATA_API_KEY=your_newsdata_api_key
    ```

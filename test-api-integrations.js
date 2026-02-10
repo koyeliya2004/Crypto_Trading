@@ -10,9 +10,10 @@ console.log('🔍 Testing API Integrations...\n');
 
 // Test 1: Check Environment Variables
 console.log('1️⃣ Checking Environment Variables:');
+const coingeckoApiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
 const envVars = {
   'GROQ_API_KEY': process.env.GROQ_API_KEY,
-  'NEXT_PUBLIC_COINGECKO_API_KEY': process.env.NEXT_PUBLIC_COINGECKO_API_KEY,
+  'COINGECKO_API_KEY': coingeckoApiKey,
   'NEXT_PUBLIC_NEWSDATA_API_KEY': process.env.NEXT_PUBLIC_NEWSDATA_API_KEY,
   'VERCEL_TOKEN': process.env.VERCEL_TOKEN,
   'RENDER_TOKEN': process.env.RENDER_TOKEN,
@@ -62,7 +63,7 @@ console.log('3️⃣ Testing CoinGecko API (Market Data):');
 async function testCoinGeckoAPI() {
   try {
     // Test the market data endpoint
-    const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = coingeckoApiKey;
     if (!apiKey) {
       console.log('   ❌ CoinGecko API key not set');
       return false;
