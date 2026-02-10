@@ -7,9 +7,6 @@ export const metadata: Metadata = {
   title: 'Crypto Trading Assistant',
   description: 'AI-powered cryptocurrency trading assistant with real-time insights',
   viewport: 'width=device-width, initial-scale=1',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
