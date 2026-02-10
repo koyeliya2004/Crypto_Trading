@@ -14,7 +14,7 @@ function buildProxyUrl(path: string) {
 
 export async function getTopCryptos(limit: number = 20): Promise<CryptoAsset[]> {
   // Prefer server-side key, fall back to public key if available
-  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
   if (!apiKey) {
     throw new Error('CoinGecko API key is not configured. Set COINGECKO_API_KEY or NEXT_PUBLIC_COINGECKO_API_KEY');
   }
@@ -54,7 +54,7 @@ export async function getCryptoHistory(
   interval: string = 'daily',
   retryCount: number = 0
 ): Promise<{ prices: [number, number][] }> {
-  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
   if (!apiKey) {
     throw new Error('CoinGecko API key is not configured. Set COINGECKO_API_KEY or NEXT_PUBLIC_COINGECKO_API_KEY');
   }

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       per_page
     )}&page=${encodeURIComponent(page)}&sparkline=false`;
 
-    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
 
     // Retry the upstream request on transient errors (429, 5xx)
     const maxRetries = 3;

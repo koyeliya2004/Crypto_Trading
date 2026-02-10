@@ -42,7 +42,7 @@ export async function GET(
     // Use daily data for the last 90 days instead of hourly
     let history;
     try {
-      const apiKey = process.env.COINGECKO_API_KEY;
+      const apiKey = process.env.COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
       if (!apiKey) {
         throw new Error('CoinGecko API key is not configured');
       }

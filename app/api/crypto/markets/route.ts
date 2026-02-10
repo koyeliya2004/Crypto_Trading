@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const limit = searchParams.get('limit') || '20';
     
-    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',

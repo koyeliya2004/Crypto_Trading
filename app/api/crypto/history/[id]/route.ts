@@ -14,7 +14,7 @@ export async function GET(
     const days = searchParams.get('days') || '90';
     const interval = searchParams.get('interval') || 'daily';
     
-    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',

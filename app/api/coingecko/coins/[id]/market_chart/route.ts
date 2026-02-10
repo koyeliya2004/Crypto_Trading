@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       days
     )}&interval=${encodeURIComponent(interval)}`;
 
-    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-gMhzoY8JhYqA3cwkGzWqHWkr';
 
     // Retry the upstream request on transient errors (429, 5xx)
     // This ensures resilience against temporary CoinGecko API issues
