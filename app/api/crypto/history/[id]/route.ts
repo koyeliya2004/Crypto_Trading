@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
@@ -6,13 +6,12 @@ const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { searchParams } = new URL(request.url);
-    const days = searchParams.get('days') || '90';
-    const interval = searchParams.get('interval') || 'daily';
+    const days = request.nextUrl.searchParams.get('days') || '90';
+    const interval = request.nextUrl.searchParams.get('interval') || 'daily';
     
     const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
     
@@ -28,7 +27,7 @@ export async function GET(
       `${COINGECKO_API_BASE}/coins/${params.id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`,
       {
         headers,
-        next: { revalidate: 300 } // Cache for 5 minutes
+        cache: 'no-store',
       }
     );
 

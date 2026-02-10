@@ -1,14 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const limit = searchParams.get('limit') || '20';
+    const limit = request.nextUrl.searchParams.get('limit') || '20';
     
     const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
     
@@ -24,7 +23,7 @@ export async function GET(request: Request) {
       `${COINGECKO_API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`,
       {
         headers,
-        next: { revalidate: 30 } // Cache for 30 seconds
+        cache: 'no-store',
       }
     );
 
