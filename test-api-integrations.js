@@ -73,7 +73,7 @@ async function testCoinGeckoAPI() {
       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=5&page=1&sparkline=false',
       {
         headers: {
-          'x-cg-api-key': apiKey,
+          'x-cg-demo-api-key': apiKey,
           'Content-Type': 'application/json'
         }
       }

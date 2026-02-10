@@ -20,7 +20,7 @@ echo "2️⃣ Testing MARKET DATA Feature (CoinGecko API)"
 echo "-----------------------------------------------"
 echo "Fetching top 3 cryptocurrencies..."
 market_data=$(curl -s 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=3&page=1&sparkline=false' \
-  -H "x-cg-api-key: CG-AkfGmBCGurF62m5SLiqrTkB2")
+  -H "x-cg-demo-api-key: CG-AkfGmBCGurF62m5SLiqrTkB2")
 echo "$market_data" | python3 -m json.tool 2>/dev/null | head -30
 echo ""
 echo ""

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCryptoHistory } from '@/app/lib/api';
 import { calculateRSI, calculateMACD, calculateBollingerBands, calculateMovingAverages } from '@/app/lib/indicators';
 import { ApiError } from '@/app/lib/utils';
 
@@ -12,6 +11,8 @@ import { ApiError } from '@/app/lib/utils';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+
+const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -41,10 +42,37 @@ export async function GET(
     }
 
     // Use daily data for the last 90 days instead of hourly
-    // getCryptoHistory already has retry logic with exponential backoff
-    let history;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json'
+    };
+    if (apiKey) {
+      headers['x-cg-demo-api-key'] = apiKey;
+    }
+    const target = `${COINGECKO_API_BASE}/coins/${encodeURIComponent(
+      id
+    )}/market_chart?vs_currency=usd&days=90&interval=daily`;
+    let history: { prices: [number, number][] };
     try {
-      history = await getCryptoHistory(id, 90, 'daily');
+      const response = await fetch(target, {
+        headers,
+        cache: 'no-store'
+      });
+      if (!response.ok) {
+        const apiError = new Error('Failed to fetch price history') as ApiError;
+        apiError.status = response.status;
+        try {
+          apiError.data = await response.json();
+        } catch {
+          try {
+            apiError.body = await response.text();
+          } catch {
+            // Ignore body parsing errors
+          }
+        }
+        throw apiError;
+      }
+      history = await response.json();
     } catch (upstreamError) {
       // Enhanced error logging with structured object for better diagnostics in Vercel logs
       const apiError = upstreamError as ApiError;

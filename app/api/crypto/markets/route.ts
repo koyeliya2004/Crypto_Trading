@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     };
     
     if (apiKey) {
-      headers['x-cg-api-key'] = apiKey;
+      headers['x-cg-demo-api-key'] = apiKey;
     }
 
     const response = await fetch(
