@@ -2,22 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCryptoHistory } from '@/app/lib/api';
 import { calculateRSI, calculateMACD, calculateBollingerBands, calculateMovingAverages } from '@/app/lib/indicators';
 
-export function generateStaticParams() {
-  // When using 'output: export', we need to pre-define all possible route parameters
-  // Include the most common cryptocurrency IDs
-  return [
-    { id: 'bitcoin' },
-    { id: 'ethereum' },
-    { id: 'ripple' },
-    { id: 'cardano' },
-    { id: 'solana' },
-    { id: 'dogecoin' },
-    { id: 'polkadot' },
-    { id: 'litecoin' },
-    { id: 'binancecoin' },
-    { id: 'tether' }
-  ];
-}
+// Removed `generateStaticParams` to avoid prefetching crypto history at build
+// time. Fetching many coin histories during SSG caused upstream rate-limiting
+// and build-time failures on Vercel. The analysis route will now run at
+// request-time, reducing build-time external requests.
 
 export async function GET(
   request: NextRequest,
@@ -25,16 +13,16 @@ export async function GET(
 ) {
   // Simple in-memory cache to reduce repeated upstream requests on the server
   // Cache key: coin id, value: { ts, response }
-  // TTL: 60 seconds
-  const CACHE_TTL = 60 * 1000;
+  // TTL: 5 minutes (reduce upstream load and avoid rate limits)
+  const CACHE_TTL = 5 * 60 * 1000;
   // Use a module-scoped cache Map (will persist while the server instance is warm)
-  // eslint-disable-next-line no-var
-  if (typeof globalThis.__analysisCache === 'undefined') {
-    // @ts-ignore
-    globalThis.__analysisCache = new Map<string, { ts: number; data: any }>();
+  // Use `any` cast to avoid TypeScript complaining about unknown global properties
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof (globalThis as any).__analysisCache === 'undefined') {
+    (globalThis as any).__analysisCache = new Map<string, { ts: number; data: any }>();
   }
-  // @ts-ignore
-  const analysisCache: Map<string, { ts: number; data: any }> = globalThis.__analysisCache;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const analysisCache: Map<string, { ts: number; data: any }> = (globalThis as any).__analysisCache;
 
   try {
     const id = params.id.toLowerCase(); // CoinGecko requires lowercase IDs
