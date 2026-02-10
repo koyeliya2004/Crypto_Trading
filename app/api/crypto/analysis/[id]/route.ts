@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateRSI, calculateMACD, calculateBollingerBands, calculateMovingAverages } from '@/app/lib/indicators';
-import { ApiError } from '@/app/lib/utils';
+import { ApiError, createApiRequestWithRetries } from '@/app/lib/utils';
 
 // Removed `generateStaticParams` to avoid prefetching crypto history at build
 // time. Fetching many coin histories during SSG caused upstream rate-limiting
@@ -54,7 +54,7 @@ export async function GET(
     )}/market_chart?vs_currency=usd&days=90&interval=daily`;
     let history: { prices: [number, number][] };
     try {
-      const response = await fetch(target, {
+      const response = await createApiRequestWithRetries(target, {
         headers,
         cache: 'no-store'
       });
