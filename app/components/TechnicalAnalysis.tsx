@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, ColorType, IChartApi } from 'lightweight-charts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +44,7 @@ export default function TechnicalAnalysis({ asset }: TechnicalAnalysisProps) {
   const [errorDetails, setErrorDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -96,23 +96,21 @@ export default function TechnicalAnalysis({ asset }: TechnicalAnalysisProps) {
     } catch (error) {
       console.error('Error fetching technical data:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch analysis data';
-      if (!error) { // Only set error if not already set
-        setError(errorMessage);
-      }
+      // Set error state - we're in a catch block so we know there's an error
+      setError(errorMessage);
       // Clear previous data on error
       setChartData([]);
       setIndicators(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [asset.id]);
 
   useEffect(() => {
     if (asset?.id) {
       fetchData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset]);
+  }, [asset, fetchData]);
 
   useEffect(() => {
     // Don't create chart if no data or container is not available
