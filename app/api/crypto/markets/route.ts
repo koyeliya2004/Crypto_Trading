@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 
 const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

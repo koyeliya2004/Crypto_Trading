@@ -8,6 +8,9 @@ import { ApiError } from '@/app/lib/utils';
 // and build-time failures on Vercel. The analysis route will now run at
 // request-time, reducing build-time external requests.
 
+// Force dynamic rendering to prevent static generation during build
+export const dynamic = 'force-dynamic';
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 export async function GET(
