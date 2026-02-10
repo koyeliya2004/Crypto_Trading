@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Crypto Trading Assistant',
   description: 'AI-powered cryptocurrency trading assistant with real-time insights',
   viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -16,11 +19,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta charSet="utf-8" />
-        {/* Inline 1x1 PNG favicon to avoid 404 while developing */}
-        <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=" />
-      </head>
       <body>
         <ThemeProvider
           attribute="class"

@@ -10,7 +10,7 @@ console.log('🔍 Testing API Integrations...\n');
 
 // Test 1: Check Environment Variables
 console.log('1️⃣ Checking Environment Variables:');
-const coingeckoApiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+const coingeckoApiKey = process.env.COINGECKO_API_KEY;
 const envVars = {
   'GROQ_API_KEY': process.env.GROQ_API_KEY,
   'COINGECKO_API_KEY': coingeckoApiKey,
