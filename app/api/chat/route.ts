@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { generateGroqResponse } from '@/lib/groq';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
