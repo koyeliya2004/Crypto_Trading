@@ -15,17 +15,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   // Simple in-memory cache to reduce repeated upstream requests on the server
-  // Cache key: coin id, value: { ts, response }
+  // Cache key: coin id, value: { ts, number; data: response object }
   // TTL: 5 minutes (reduce upstream load and avoid rate limits)
   const CACHE_TTL = 5 * 60 * 1000;
   // Use a module-scoped cache Map (will persist while the server instance is warm)
-  // Use `any` cast to avoid TypeScript complaining about unknown global properties
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (typeof (globalThis as any).__analysisCache === 'undefined') {
-    (globalThis as any).__analysisCache = new Map<string, { ts: number; data: any }>();
+  if (typeof (globalThis as Record<string, unknown>).__analysisCache === 'undefined') {
+    (globalThis as Record<string, unknown>).__analysisCache = new Map<string, { ts: number; data: unknown }>();
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const analysisCache: Map<string, { ts: number; data: any }> = (globalThis as any).__analysisCache;
+  const analysisCache = (globalThis as Record<string, unknown>).__analysisCache as Map<string, { ts: number; data: unknown }>;
 
   try {
     const id = params.id.toLowerCase(); // CoinGecko requires lowercase IDs
