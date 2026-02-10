@@ -49,10 +49,8 @@ export async function getCryptoHistory(
   interval: string = 'daily',
   retryCount: number = 0
 ): Promise<{ prices: [number, number][] }> {
-  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(apiKey ? { 'x-cg-api-key': apiKey } : {})
+    'Content-Type': 'application/json'
   };
   
   try {
