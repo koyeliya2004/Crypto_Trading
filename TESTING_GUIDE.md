@@ -296,3 +296,155 @@ _______________________________________________________________________________
 ---
 
 **Happy Testing! 🎉**
+
+---
+
+## 🔍 Testing the Analysis Endpoint (New)
+
+### Command-Line Verification
+
+We've added a verification script to test the `/api/crypto/analysis/[id]` endpoint which provides technical analysis data.
+
+**Prerequisites:**
+- Node.js installed
+- The application running (either locally via `npm run dev` or deployed)
+
+**Steps to Test:**
+
+1. **Test against local development server:**
+   ```bash
+   # Start the dev server if not already running
+   npm run dev
+   
+   # In another terminal, run the verification script
+   node scripts/verify-analysis.js bitcoin http://localhost:3000
+   ```
+
+2. **Test against deployed production server:**
+   ```bash
+   node scripts/verify-analysis.js ethereum https://crypto-trading-teal.vercel.app
+   ```
+
+3. **Test with different coins and timeframes:**
+   ```bash
+   # Test with different cryptocurrency IDs
+   node scripts/verify-analysis.js bitcoin http://localhost:3000
+   node scripts/verify-analysis.js ethereum http://localhost:3000
+   node scripts/verify-analysis.js cardano http://localhost:3000
+   
+   # Test with different day ranges (optional third parameter, default is 90)
+   node scripts/verify-analysis.js bitcoin http://localhost:3000 30
+   node scripts/verify-analysis.js bitcoin http://localhost:3000 365
+   ```
+
+**Expected Output:**
+
+✅ **Success Response (HTTP 200):**
+```
+============================================================
+Crypto Analysis Endpoint Verification
+============================================================
+URL: http://localhost:3000/api/crypto/analysis/bitcoin?days=90
+Coin: bitcoin
+Days: 90
+============================================================
+
+Status: 200 OK
+Duration: 1234ms
+
+Headers:
+  content-type: application/json
+  ...
+
+✅ SUCCESS
+
+Response Summary:
+  Price Points: 90
+
+Indicators:
+  RSI: 58.32
+  MACD Line: 123.45
+  Signal Line: 98.76
+  Histogram: 24.69
+  BB Upper: 42500.12
+  BB Middle: 40000.00
+  BB Lower: 37500.88
+  MA20: 41000.23
+  MA50: 39500.45
+  MA200: 38000.67
+...
+```
+
+❌ **Error Response (HTTP 502/500):**
+```
+Status: 502 Bad Gateway
+...
+
+❌ ERROR
+
+Error Response:
+{
+  "error": "Failed to fetch price history",
+  "message": "Unable to retrieve data from upstream API",
+  "details": {
+    "id": "bitcoin",
+    "message": "CoinGecko API key is not configured"
+  }
+}
+```
+
+**What This Tests:**
+- ✅ Analysis endpoint availability
+- ✅ Retry logic for upstream API failures
+- ✅ Error handling and informative error messages
+- ✅ Response structure validation
+- ✅ Technical indicator calculations
+- ✅ Development mode diagnostics
+
+**Common Issues and Solutions:**
+
+1. **"CoinGecko API key is not configured"**
+   - Solution: Set the `COINGECKO_API_KEY` or `NEXT_PUBLIC_COINGECKO_API_KEY` environment variable
+
+2. **Connection refused / Server not running**
+   - Solution: Make sure the dev server is running with `npm run dev`
+
+3. **502 Bad Gateway in production**
+   - This may indicate:
+     - Rate limiting from CoinGecko API
+     - Network connectivity issues
+     - Upstream API is down
+   - Check Vercel logs for detailed error information
+
+4. **Indicators showing NaN or invalid values**
+   - Ensure sufficient price data is available (minimum 26 data points)
+   - Check that the cryptocurrency ID is valid
+
+### Browser Testing
+
+You can also test the endpoint directly in the browser or using browser dev tools:
+
+1. **Open the application in a browser**
+2. **Open Developer Console (F12)**
+3. **Navigate to a cryptocurrency detail page**
+4. **Check the Network tab for `/api/crypto/analysis/[id]` requests**
+5. **Look for:**
+   - Response status (should be 200 for success)
+   - Response body containing `prices` and `indicators`
+   - Error messages in console if something fails
+   - Retry button appears on errors (for frontend testing)
+
+**Expected Frontend Behavior:**
+
+✅ **Success:**
+- Technical analysis chart displays with price data
+- Indicator values show in the UI (RSI, MACD, Bollinger Bands, Moving Averages)
+- Signals panel shows bullish/bearish indicators
+
+❌ **Error:**
+- User-friendly error message displays
+- "Retry" button appears
+- In development mode, error details are visible
+- No blank or broken chart is shown
+
+---
