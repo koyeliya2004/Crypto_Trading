@@ -49,19 +49,12 @@ export async function getCryptoHistory(
   interval: string = 'daily',
   retryCount: number = 0
 ): Promise<{ prices: [number, number][] }> {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json'
-  };
-  
   try {
     // Add delay between requests to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const response = await createApiRequest(
-      buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`),
-      {
-        headers
-      }
+      buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`)
     );
     const data = await handleApiResponse<{ prices: [number, number][] }>(response);
     
