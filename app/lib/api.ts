@@ -54,9 +54,9 @@ export async function getCryptoHistory(
   interval: string = 'daily',
   retryCount: number = 0
 ): Promise<{ prices: [number, number][] }> {
-  const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   if (!apiKey) {
-    throw new Error('CoinGecko API key is not configured');
+    throw new Error('CoinGecko API key is not configured. Set COINGECKO_API_KEY or NEXT_PUBLIC_COINGECKO_API_KEY');
   }
   
   try {
