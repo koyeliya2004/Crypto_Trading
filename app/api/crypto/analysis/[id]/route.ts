@@ -10,6 +10,8 @@ import { ApiError } from '@/app/lib/utils';
 
 // Force dynamic rendering to prevent static generation during build
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
