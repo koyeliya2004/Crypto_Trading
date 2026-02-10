@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, ColorType, IChartApi } from 'lightweight-charts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,44 +41,79 @@ export default function TechnicalAnalysis({ asset }: TechnicalAnalysisProps) {
   const [selectedIndicator, setSelectedIndicator] = useState<'all' | 'rsi' | 'macd' | 'bb'>('all');
 
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch(`/api/crypto/analysis/${asset.id}`);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch analysis data');
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setErrorDetails(null);
+      
+      const response = await fetch(`/api/crypto/analysis/${asset.id}`);
+      if (!response.ok) {
+        // Parse error response safely
+        let errorData: any = {};
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          // If JSON parsing fails, try to read as text
+          try {
+            const errorText = await response.text();
+            errorData = { error: 'Server error', message: errorText };
+          } catch {
+            errorData = { error: 'Server error', message: `HTTP ${response.status}` };
+          }
         }
         
-        const data = await response.json();
-        if (!data.prices || !data.indicators) {
-          throw new Error('Invalid data format received from server');
+        // Extract readable error message
+        const errorMessage = errorData.message || errorData.error || 'Failed to fetch analysis data';
+        setError(errorMessage);
+        
+        // Store details for development mode display
+        if (errorData.details) {
+          setErrorDetails(errorData.details);
         }
-
-        setChartData(data.prices);
-        setIndicators(data.indicators);
-      } catch (error) {
-        console.error('Error fetching technical data:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch analysis data');
-        // Clear previous data on error
-        setChartData([]);
-        setIndicators(null);
-      } finally {
-        setLoading(false);
+        
+        // Log detailed error to console for debugging
+        console.error('Error fetching technical data:', {
+          status: response.status,
+          error: errorMessage,
+          details: errorData.details,
+          asset: asset.id
+        });
+        
+        throw new Error(errorMessage);
       }
-    };
+      
+      const data = await response.json();
+      if (!data.prices || !data.indicators) {
+        throw new Error('Invalid data format received from server');
+      }
 
+      setChartData(data.prices);
+      setIndicators(data.indicators);
+    } catch (error) {
+      console.error('Error fetching technical data:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch analysis data';
+      // Set error state - we're in a catch block so we know there's an error
+      setError(errorMessage);
+      // Clear previous data on error
+      setChartData([]);
+      setIndicators(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [asset.id]);
+
+  useEffect(() => {
     if (asset?.id) {
       fetchData();
     }
-  }, [asset]);
+  }, [asset, fetchData]);
 
   useEffect(() => {
+    // Don't create chart if no data or container is not available
     if (!chartContainerRef.current || !chartData || chartData.length === 0) {
       // Clear chart if no data
       if (chartRef.current) {
@@ -93,7 +128,11 @@ export default function TechnicalAnalysis({ asset }: TechnicalAnalysisProps) {
       chartRef.current.remove();
       chartRef.current = null;
     }
-    chartContainerRef.current.innerHTML = '';
+    
+    // Clear container to ensure clean state
+    if (chartContainerRef.current) {
+      chartContainerRef.current.innerHTML = '';
+    }
 
     try {
       const chart = createChart(chartContainerRef.current, {
@@ -362,10 +401,37 @@ export default function TechnicalAnalysis({ asset }: TechnicalAnalysisProps) {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-[100px] text-destructive">
+          <div className="flex flex-col items-center justify-center p-4 text-destructive">
+            <div className="text-center max-w-md">
+              <p className="font-medium text-base mb-2">Error loading technical analysis</p>
+              <p className="text-sm mb-4">{error}</p>
+              {process.env.NODE_ENV === 'development' && errorDetails && (
+                <details className="text-left text-xs bg-muted p-3 rounded-md mb-4 text-muted-foreground">
+                  <summary className="cursor-pointer font-medium mb-2">Development Details</summary>
+                  <pre className="overflow-auto whitespace-pre-wrap">
+                    {JSON.stringify(errorDetails, null, 2)}
+                  </pre>
+                </details>
+              )}
+              <button
+                onClick={() => fetchData()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : !chartData || chartData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[100px] text-muted-foreground">
             <div className="text-center">
-              <p className="font-medium">Error loading technical analysis</p>
-              <p className="text-sm mt-2">{error}</p>
+              <p className="font-medium">No technical data available</p>
+              <p className="text-sm mt-2">Unable to load chart data for this asset</p>
+              <button
+                onClick={() => fetchData()}
+                className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+              >
+                Retry
+              </button>
             </div>
           </div>
         ) : indicators ? (
