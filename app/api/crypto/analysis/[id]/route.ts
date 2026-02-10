@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCryptoHistory } from '@/app/lib/api';
 import { calculateRSI, calculateMACD, calculateBollingerBands, calculateMovingAverages } from '@/app/lib/indicators';
-import { ApiError } from '@/app/lib/utils';
 
 // Removed `generateStaticParams` to avoid prefetching crypto history at build
 // time. Fetching many coin histories during SSG caused upstream rate-limiting
@@ -13,7 +11,86 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
+const COINGECKO_BASE = 'https://api.coingecko.com/api/v3';
 const isDevelopment = process.env.NODE_ENV === 'development';
+
+/**
+ * Fetch market chart data directly from CoinGecko instead of going through
+ * the proxy route. Server-side routes calling back to themselves via the proxy
+ * can fail on Vercel because VERCEL_URL may point to a preview deployment
+ * that has deployment protection enabled, resulting in 401 errors.
+ */
+async function fetchCoinGeckoHistory(
+  id: string,
+  days: number = 90,
+  interval: string = 'daily'
+): Promise<{ prices: [number, number][] }> {
+  const apiKey = process.env.COINGECKO_API_KEY;
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (apiKey) {
+    headers['x-cg-api-key'] = apiKey;
+  }
+
+  const target = `${COINGECKO_BASE}/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${days}&interval=${encodeURIComponent(interval)}`;
+
+  const maxRetries = 3;
+  let attempt = 0;
+  let lastError: Error | null = null;
+
+  while (attempt < maxRetries) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(target, {
+        method: 'GET',
+        headers,
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeoutId));
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!data || !Array.isArray(data.prices) || data.prices.length === 0) {
+          throw new Error('Invalid price data received from CoinGecko');
+        }
+        return { prices: data.prices };
+      }
+
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after');
+        const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : Math.pow(2, attempt) * 1000;
+        await new Promise(r => setTimeout(r, isNaN(waitMs) ? 1000 : waitMs));
+        attempt++;
+        continue;
+      }
+
+      if (response.status >= 500) {
+        const waitMs = Math.pow(2, attempt) * 1000;
+        await new Promise(r => setTimeout(r, waitMs));
+        attempt++;
+        continue;
+      }
+
+      // Non-retryable error (4xx except 429)
+      const errorBody = await response.text().catch(() => '');
+      const error = new Error(`CoinGecko API error: ${response.status}`) as Error & { status?: number; body?: string };
+      error.status = response.status;
+      error.body = errorBody;
+      throw error;
+    } catch (err) {
+      if ((err as Error & { status?: number }).status && (err as Error & { status?: number }).status! < 500 && (err as Error & { status?: number }).status !== 429) {
+        throw err;
+      }
+      lastError = err as Error;
+      if (attempt >= maxRetries - 1) throw lastError;
+      const waitMs = Math.pow(2, attempt) * 1000;
+      await new Promise(r => setTimeout(r, waitMs));
+      attempt++;
+    }
+  }
+
+  throw lastError || new Error('Failed to fetch data from CoinGecko after retries');
+}
 
 export async function GET(
   request: NextRequest,
@@ -41,27 +118,26 @@ export async function GET(
     }
 
     // Use daily data for the last 90 days instead of hourly
-    // getCryptoHistory already has retry logic with exponential backoff
+    // Fetch directly from CoinGecko to avoid self-referencing proxy issues on Vercel
     let history;
     try {
-      history = await getCryptoHistory(id, 90, 'daily');
+      history = await fetchCoinGeckoHistory(id, 90, 'daily');
     } catch (upstreamError) {
       // Enhanced error logging with structured object for better diagnostics in Vercel logs
-      const apiError = upstreamError as ApiError;
+      const err = upstreamError as Error & { status?: number; body?: string };
       const errorDetails = {
         id,
-        status: apiError.status,
-        message: apiError.message,
-        data: apiError.data,
+        status: err.status,
+        message: err.message,
         // Include response body snippet (first 200 chars) for diagnostics
-        bodySnippet: apiError.body ? apiError.body.substring(0, 200) : undefined
+        bodySnippet: err.body ? err.body.substring(0, 200) : undefined
       };
       
       console.error('Upstream error fetching history:', errorDetails);
       
       // Return appropriate status codes based on the upstream error
       // 429: Rate limited - return 503 Service Unavailable with Retry-After suggestion
-      if (apiError.status === 429) {
+      if (err.status === 429) {
         return NextResponse.json(
           {
             error: 'Upstream rate limited',
@@ -73,11 +149,11 @@ export async function GET(
       }
       
       // 4xx client errors (except 429) - return 502 Bad Gateway
-      if (apiError.status && apiError.status >= 400 && apiError.status < 500) {
+      if (err.status && err.status >= 400 && err.status < 500) {
         return NextResponse.json(
           {
             error: 'Invalid upstream request',
-            message: `Failed to fetch price history: ${apiError.message}`,
+            message: `Failed to fetch price history: ${err.message}`,
             ...(isDevelopment && { details: errorDetails })
           },
           { status: 502 }
