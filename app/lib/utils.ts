@@ -32,34 +32,30 @@ export async function handleApiResponse<T>(response: Response): Promise<T> {
 export function createApiRequest(url: string, options: RequestInit = {}): Promise<Response> {
   const timeout = 10000; // 10 seconds timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-    const error = new Error('Request timeout') as ApiError;
-    error.code = 'TIMEOUT';
-    throw error;
-  }, timeout);
-
-  // Create a custom agent to bypass SSL certificate validation
-  // This is only for development purposes
   const fetchOptions: RequestInit = {
     ...options,
     signal: controller.signal,
   };
 
-  // Store the original value of NODE_TLS_REJECT_UNAUTHORIZED
+  // Store original TLS env var and temporarily disable strict TLS in dev
   const originalValue = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-  
-  // Set NODE_TLS_REJECT_UNAUTHORIZED=0 for development
-  // This bypasses SSL certificate validation temporarily
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-  return fetch(url, fetchOptions).finally(() => {
-    clearTimeout(timeoutId);
-    // Restore the original environment variable value after the request
-    if (originalValue === undefined) {
-      delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-    } else {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = originalValue;
+  const timeoutId = setTimeout(() => {
+    try {
+      controller.abort();
+    } catch {
+      // ignore
     }
-  });
+  }, timeout);
+
+  return fetch(url, fetchOptions)
+    .finally(() => {
+      clearTimeout(timeoutId);
+      if (originalValue === undefined) {
+        delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+      } else {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = originalValue;
+      }
+    });
 }
