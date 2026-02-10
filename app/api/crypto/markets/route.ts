@@ -1,16 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     const limit = searchParams.get('limit') || '20';
     
-    const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+    const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
