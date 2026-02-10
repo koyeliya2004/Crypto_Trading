@@ -14,20 +14,67 @@ export async function GET(req: NextRequest) {
 
     const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
 
-    const response = await fetch(target, {
-      method: 'GET',
-      headers: apiKey
-        ? {
-            'x-cg-api-key': apiKey,
-            'Content-Type': 'application/json'
-          }
-        : { 'Content-Type': 'application/json' },
-    });
+    // Retry the upstream request on transient errors (429, 5xx)
+    const maxRetries = 3;
+    let attempt = 0;
+    let response: Response | null = null;
+    let lastError: any = null;
+    const headers = apiKey
+      ? {
+          'x-cg-api-key': apiKey,
+          'Content-Type': 'application/json'
+        }
+      : { 'Content-Type': 'application/json' };
+    // Ensure the headers type matches Fetch API's HeadersInit
+    const fetchHeaders: HeadersInit = headers as HeadersInit;
 
-    const data = await response.text();
+    while (attempt < maxRetries) {
+      try {
+        response = await fetch(target, { method: 'GET', headers: fetchHeaders });
+        // If successful or client error (4xx except 429), break and return
+        if (response.ok || (response.status >= 400 && response.status < 500 && response.status !== 429)) {
+          break;
+        }
 
-    // Forward status and body
-    const res = new NextResponse(data, {
+        // If rate limited, try to respect Retry-After before retrying
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after');
+          const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : (Math.pow(2, attempt) * 1000);
+          await new Promise(r => setTimeout(r, isNaN(waitMs) ? 1000 : waitMs));
+          attempt++;
+          continue;
+        }
+
+        // For 5xx errors, backoff and retry
+        if (response.status >= 500) {
+          const waitMs = Math.pow(2, attempt) * 1000;
+          await new Promise(r => setTimeout(r, waitMs));
+          attempt++;
+          continue;
+        }
+
+        break;
+      } catch (err) {
+        lastError = err;
+        const waitMs = Math.pow(2, attempt) * 1000;
+        await new Promise(r => setTimeout(r, waitMs));
+        attempt++;
+      }
+    }
+
+    if (!response) {
+      return NextResponse.json({ error: 'Upstream request failed', details: String(lastError) }, { status: 502 });
+    }
+
+    let data: any;
+    try {
+      data = await response.json();
+    } catch (e) {
+      // Fallback to text if response isn't JSON
+      data = await response.text();
+    }
+
+    const res = NextResponse.json(data, {
       status: response.status,
       headers: {
         'Content-Type': response.headers.get('content-type') || 'application/json',
@@ -37,6 +84,11 @@ export async function GET(req: NextRequest) {
 
     const retryAfter = response.headers.get('retry-after');
     if (retryAfter) res.headers.set('Retry-After', retryAfter);
+
+    // If the upstream ultimately failed after retries, surface a 502
+    if (!response.ok) {
+      return NextResponse.json({ error: 'Upstream error', status: response.status, data }, { status: 502 });
+    }
 
     return res;
   } catch (err) {
