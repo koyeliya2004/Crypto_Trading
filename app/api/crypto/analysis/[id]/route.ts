@@ -58,8 +58,9 @@ async function fetchCoinGeckoHistory(
 
       if (response.status === 429) {
         const retryAfter = response.headers.get('retry-after');
-        const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : Math.pow(2, attempt) * 1000;
-        await new Promise(r => setTimeout(r, isNaN(waitMs) ? 1000 : waitMs));
+        const retryAfterNum = retryAfter ? parseInt(retryAfter, 10) : NaN;
+        const waitMs = !isNaN(retryAfterNum) ? retryAfterNum * 1000 : Math.pow(2, attempt) * 1000;
+        await new Promise(r => setTimeout(r, waitMs));
         attempt++;
         continue;
       }
@@ -78,7 +79,8 @@ async function fetchCoinGeckoHistory(
       error.body = errorBody;
       throw error;
     } catch (err) {
-      if ((err as Error & { status?: number }).status && (err as Error & { status?: number }).status! < 500 && (err as Error & { status?: number }).status !== 429) {
+      const errStatus = (err as Error & { status?: number }).status;
+      if (errStatus && errStatus < 500 && errStatus !== 429) {
         throw err;
       }
       lastError = err as Error;

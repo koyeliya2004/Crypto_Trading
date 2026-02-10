@@ -7,7 +7,11 @@ function buildProxyUrl(path: string) {
   // If running on the server and proxy base is relative, prefix with a full origin
   if (COINGECKO_API_BASE.startsWith('/') && typeof window === 'undefined') {
     // Prefer production URL to avoid Vercel deployment protection on preview URLs
-    const site = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'));
+    const site = process.env.NEXT_PUBLIC_SITE_URL
+      || process.env.SITE_URL
+      || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined)
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
+      || 'http://localhost:3000';
     return `${site}${COINGECKO_API_BASE}${path}`;
   }
   return `${COINGECKO_API_BASE}${path}`;
