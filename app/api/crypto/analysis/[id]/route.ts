@@ -23,12 +23,43 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Simple in-memory cache to reduce repeated upstream requests on the server
+  // Cache key: coin id, value: { ts, response }
+  // TTL: 60 seconds
+  const CACHE_TTL = 60 * 1000;
+  // Use a module-scoped cache Map (will persist while the server instance is warm)
+  // eslint-disable-next-line no-var
+  if (typeof globalThis.__analysisCache === 'undefined') {
+    // @ts-ignore
+    globalThis.__analysisCache = new Map<string, { ts: number; data: any }>();
+  }
+  // @ts-ignore
+  const analysisCache: Map<string, { ts: number; data: any }> = globalThis.__analysisCache;
+
   try {
     const id = params.id.toLowerCase(); // CoinGecko requires lowercase IDs
     console.log('Fetching data for:', id);
 
+    // Return cached response when available and fresh
+    const cached = analysisCache.get(id);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      console.log(`Returning cached analysis for ${id}`);
+      return NextResponse.json(cached.data);
+    }
+
     // Use daily data for the last 90 days instead of hourly
-    const history = await getCryptoHistory(id, 90, 'daily');
+    let history;
+    try {
+      history = await getCryptoHistory(id, 90, 'daily');
+    } catch (upstreamError) {
+      console.error('Upstream error fetching history for:', id, upstreamError);
+      // If upstream indicates rate limiting, surface a 503 so the client can retry
+      const status = (upstreamError as any)?.status || (String(upstreamError).includes('429') ? 429 : 500);
+      if (status === 429) {
+        return NextResponse.json({ error: 'Upstream rate limited' }, { status: 503 });
+      }
+      return NextResponse.json({ error: 'Failed to fetch price history' }, { status: 502 });
+    }
     console.log('History response:', history);
 
     if (!history?.prices?.length) {
@@ -74,16 +105,8 @@ export async function GET(
       }
     } catch (error) {
       console.error('Error calculating indicators for:', id, error);
-      // Provide additional error detail in responses temporarily to aid debugging
-      const message = error instanceof Error ? error.message : String(error);
-      const stack = error instanceof Error && error.stack ? error.stack : undefined;
-      if (process.env.NODE_ENV === 'production') {
-        // still log stack in production, but avoid leaking sensitive details to clients
-        console.error(stack);
-        return NextResponse.json({ error: 'Failed to calculate indicators', details: message }, { status: 500 });
-      }
       return NextResponse.json(
-        { error: 'Failed to calculate indicators', details: message, stack },
+        { error: 'Failed to calculate indicators' },
         { status: 500 }
       );
     }
@@ -128,15 +151,19 @@ export async function GET(
         }
       }
     });
+    // Cache the successful response
+    try {
+      analysisCache.set(id, { ts: Date.now(), data: response });
+    } catch (cacheErr) {
+      console.warn('Failed to cache analysis response:', cacheErr);
+    }
+
     return NextResponse.json(response);
   } catch (error) {
-      console.error('Error in analysis endpoint:', error);
-      const message = error instanceof Error ? error.message : String(error);
-      const stack = error instanceof Error && error.stack ? error.stack : undefined;
-      // Temporarily include details to assist debugging; remove or sanitize later.
-      return NextResponse.json(
-        { error: 'Failed to analyze crypto data', details: message, stack: process.env.NODE_ENV === 'development' ? stack : undefined },
-        { status: 500 }
-      );
+    console.error('Error in analysis endpoint:', error);
+    return NextResponse.json(
+      { error: 'Failed to analyze crypto data' },
+      { status: 500 }
+    );
   }
 }

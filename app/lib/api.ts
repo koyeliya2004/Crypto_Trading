@@ -13,9 +13,10 @@ function buildProxyUrl(path: string) {
 }
 
 export async function getTopCryptos(limit: number = 20): Promise<CryptoAsset[]> {
-  const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+  // Prefer server-side key, fall back to public key if available
+  const apiKey = process.env.COINGECKO_API_KEY || process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   if (!apiKey) {
-    throw new Error('CoinGecko API key is not configured');
+    throw new Error('CoinGecko API key is not configured. Set COINGECKO_API_KEY or NEXT_PUBLIC_COINGECKO_API_KEY');
   }
   try {
     // Use internal server-side proxy to avoid CORS and rate-limit exposure

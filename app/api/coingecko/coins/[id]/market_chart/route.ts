@@ -25,9 +25,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         : { 'Content-Type': 'application/json' },
     });
 
-    const data = await response.text();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch (e) {
+      // Fallback to text if response isn't JSON
+      data = await response.text();
+    }
 
-    const res = new NextResponse(data, {
+    const res = NextResponse.json(data, {
       status: response.status,
       headers: {
         'Content-Type': response.headers.get('content-type') || 'application/json',
