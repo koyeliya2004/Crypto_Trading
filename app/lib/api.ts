@@ -67,7 +67,7 @@ export async function getCryptoHistory(
       buildProxyUrl(`/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`),
       {
         headers: {
-          'x-cg-api-key': apiKey,
+          'x-cg-demo-api-key': apiKey,
           'Content-Type': 'application/json'
         }
       }

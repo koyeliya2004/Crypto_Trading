@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     let lastError: any = null;
     const headers = apiKey
       ? {
-          'x-cg-api-key': apiKey,
+          'x-cg-demo-api-key': apiKey,
           'Content-Type': 'application/json'
         }
       : { 'Content-Type': 'application/json' };

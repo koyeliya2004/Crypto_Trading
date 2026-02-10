@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCryptoHistory } from '@/app/lib/api';
 import { calculateRSI, calculateMACD, calculateBollingerBands, calculateMovingAverages } from '@/app/lib/indicators';
-import { ApiError } from '@/app/lib/utils';
 
 // Removed `generateStaticParams` to avoid prefetching crypto history at build
 // time. Fetching many coin histories during SSG caused upstream rate-limiting
@@ -14,6 +12,7 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const COINGECKO_API_BASE = 'https://api.coingecko.com/api/v3';
 
 export async function GET(
   request: NextRequest,
@@ -41,18 +40,39 @@ export async function GET(
     }
 
     // Use daily data for the last 90 days instead of hourly
-    // getCryptoHistory already has retry logic with exponential backoff
     let history;
     try {
-      history = await getCryptoHistory(id, 90, 'daily');
+      const apiKey = process.env.COINGECKO_API_KEY;
+      if (!apiKey) {
+        throw new Error('CoinGecko API key is not configured');
+      }
+
+      const target = `${COINGECKO_API_BASE}/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=90&interval=daily`;
+      const upstreamResponse = await fetch(target, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-cg-demo-api-key': apiKey
+        },
+        cache: 'no-store'
+      });
+
+      if (!upstreamResponse.ok) {
+        const body = await upstreamResponse.text();
+        const fetchError = new Error('API request failed') as Error & { status?: number; body?: string };
+        fetchError.status = upstreamResponse.status;
+        fetchError.body = body;
+        throw fetchError;
+      }
+
+      history = await upstreamResponse.json();
     } catch (upstreamError) {
       // Enhanced error logging with structured object for better diagnostics in Vercel logs
-      const apiError = upstreamError as ApiError;
+      const apiError = upstreamError as Error & { status?: number; body?: string };
       const errorDetails = {
         id,
         status: apiError.status,
         message: apiError.message,
-        data: apiError.data,
         // Include response body snippet (first 200 chars) for diagnostics
         bodySnippet: apiError.body ? apiError.body.substring(0, 200) : undefined
       };
@@ -105,11 +125,11 @@ export async function GET(
     }
 
     // Format and validate prices
-    const prices = history.prices
-      .filter(([timestamp, price]) => 
+    const prices: { time: number; value: number }[] = history.prices
+      .filter(([timestamp, price]: [number, number]) => 
         timestamp && typeof price === 'number' && !isNaN(price) && price > 0
       )
-      .map(([timestamp, price]) => ({
+      .map(([timestamp, price]: [number, number]) => ({
         time: Math.floor(timestamp / 1000),
         value: price
       }));
@@ -123,7 +143,7 @@ export async function GET(
       );
     }
 
-    const closePrices = prices.map(p => p.value);
+    const closePrices = prices.map((p: { time: number; value: number }) => p.value);
 
     // Calculate indicators with proper error handling and validation
     // Validate each indicator result before indexing to avoid undefined access errors
